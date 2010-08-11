@@ -33,12 +33,12 @@ Use the automatic plugin installer of your WordPress admin, or do it manually :
 = What is the ID of my Facebook Fan Page ? =
 
 For exemple :
-* if your Facebook Fan Page url is www.facebook.com/pages/BlogName/123456, your Fan Page ID is just 123456.
-* if your Facebook Fan Page url is just www.facebook.com/pages/MyName/, your Fan Page ID is MyName.
+1. if your Facebook Fan Page url is www.facebook.com/pages/BlogName/123456, your Fan Page ID is just 123456.
+1. if your Facebook Fan Page url is just www.facebook.com/pages/MyName/, your Fan Page ID is MyName.
 
 = Why is the FB Comments Importer settings page so long to show =
 
-The settings page check from Facebook if all of your settings are ok in order to import your comments. If Facebook is a bit long to respond, this page could be slow.
+The settings page checks your Facebook page if all of your settings are ok in order to import your comments. If Facebook is a bit long to respond, this page could be slow.
 However, FB Comments Importer does not slow down your blog in any way, it justs checks for comments every hour.
 
 == Screenshots ==
