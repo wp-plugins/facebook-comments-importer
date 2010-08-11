@@ -3,7 +3,7 @@
 Plugin Name: Facebook Comments Importer
 Plugin URI: 
 Description: This plugin imports the comments posted on your Facebook fan page to your blog.
-Version: 1.0
+Version: 1.0.1
 Author: Neoseifer22
 Author URI: 
 License: GPL2
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 require_once('fbci.class.php');
 $facebook = null ;
-load_plugin_textdomain('facebook-comments-importer','WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)) ;');
+//load_plugin_textdomain('facebook-comments-importer','WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)) ;');
 
 /**
 * Scheduling block

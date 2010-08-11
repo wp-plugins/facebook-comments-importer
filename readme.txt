@@ -3,7 +3,7 @@ Contributors: Neoseifer22
 Tags: comments, facebook
 Requires at least: 2.9
 Tested up to: 3.0.1
-Stable tag: trunk
+Stable tag: 1.0.1
 
 Imports the comments posted on your facebook fan page (or public profile) to your blog.
 
@@ -46,6 +46,9 @@ However, FB Comments Importer does not slow down your blog in any way, it justs 
 1. Facebook Comments Importer configuration.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fix a bug with localisation
 
 = 1.0 =
 * First release
