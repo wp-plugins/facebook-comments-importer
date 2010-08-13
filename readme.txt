@@ -48,7 +48,7 @@ However, FB Comments Importer does not slow down your blog in any way, it justs 
 == Changelog ==
 
 = 1.0.1 =
-* Fix a bug with localisation
+* Fix a bug with localization
 
 = 1.0 =
 * First release
