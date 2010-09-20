@@ -79,16 +79,17 @@ class Facebook
   /**
    * Version.
    */
-  const VERSION = '2.0.6';
+  const VERSION = '2.1.1';
 
   /**
    * Default options for curl.
    */
   public static $CURL_OPTS = array(
-    CURLOPT_CONNECTTIMEOUT => 10,
+    CURLOPT_CONNECTTIMEOUT => 25,
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT        => 60,
     CURLOPT_USERAGENT      => 'facebook-php-2.0',
+	CURLOPT_SSL_VERIFYPEER => false
   );
 
   /**
@@ -146,6 +147,11 @@ class Facebook
   protected $baseDomain = '';
 
   /**
+   * Indicates if the CURL based @ syntax for file uploads is enabled.
+   */
+  protected $fileUploadSupport = false;
+
+  /**
    * Initialize a Facebook Application.
    *
    * The configuration:
@@ -153,6 +159,7 @@ class Facebook
    * - secret: the application secret
    * - cookie: (optional) boolean true to enable cookie support
    * - domain: (optional) domain for the cookie
+   * - fileUpload: (optional) boolean indicating if file uploads are enabled
    *
    * @param Array $config the application configuration
    */
@@ -164,6 +171,9 @@ class Facebook
     }
     if (isset($config['domain'])) {
       $this->setBaseDomain($config['domain']);
+    }
+    if (isset($config['fileUpload'])) {
+      $this->setFileUploadSupport($config['fileUpload']);
     }
   }
 
@@ -241,6 +251,25 @@ class Facebook
    */
   public function getBaseDomain() {
     return $this->baseDomain;
+  }
+
+  /**
+   * Set the file upload support status.
+   *
+   * @param String $domain the base domain
+   */
+  public function setFileUploadSupport($fileUploadSupport) {
+    $this->fileUploadSupport = $fileUploadSupport;
+    return $this;
+  }
+
+  /**
+   * Get the file upload support status.
+   *
+   * @return String the base domain
+   */
+  public function useFileUploadSupport() {
+    return $this->fileUploadSupport;
   }
 
   /**
@@ -484,7 +513,7 @@ class Facebook
     }
     $params['method'] = $method; // method override as we always do a POST
 
-    $result = json_decode($this->_oauthRequest(
+	$result = json_decode($this->_oauthRequest(
       $this->getUrl('graph', $path),
       $params
     ), true);
@@ -538,7 +567,11 @@ class Facebook
     }
 
     $opts = self::$CURL_OPTS;
-    $opts[CURLOPT_POSTFIELDS] = http_build_query($params, null, '&');
+    if ($this->useFileUploadSupport()) {
+      $opts[CURLOPT_POSTFIELDS] = $params;
+    } else {
+      $opts[CURLOPT_POSTFIELDS] = http_build_query($params, null, '&');
+    }
     $opts[CURLOPT_URL] = $url;
 
     // disable the 'Expect: 100-continue' behaviour. This causes CURL to wait

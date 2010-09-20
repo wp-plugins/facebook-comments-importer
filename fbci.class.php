@@ -29,8 +29,29 @@ class FacebookCommentImporter {
 		$this->facebook = new Facebook(array(
 		  'appId'  => '106793439375373',
 		  'secret' => 'dbc0fe0aa03a505300d2569b7a004663',
-		  'cookie' => true,
+		  'cookie' => false,
 		));
+	}
+	
+	/**
+	 * Make a quick test on the Fan Page or Profile
+	 * 
+	 * @package WordPress
+	 * @since 1.0
+	 *
+	 * @return   string		A description of the error, or a description starting with 'OK' if all is right.
+	 */
+	public function fan_page_test(){	
+		try{
+			$wall = $this->get_wall(10, true) ; 
+			if(count($wall) < 1) {
+				throw new Exception(__('Cannot find a post linked to this blog on the last 10 posts of the Facebook wall. Check that at least one post on your wall links to a post of your blog.', 'facebook-comments-importer'));
+			} else {
+				return __('OK. The followink post on your wall is linked to your blog: ', 'facebook-comments-importer') . '"' . $wall[0]["name"] . '".' ; 
+			}
+		} catch(Exception $e) {
+			return 'Error: ' . $e->getMessage() ; 
+		}
 	}
 	
 	/**
@@ -44,11 +65,10 @@ class FacebookCommentImporter {
 	 * @return   array                the Fan Page, see FB Graphe API
 	 */
 	public function get_fan_page(){	
-		try{
-			$fan_page = $this->facebook->api('/' . $this->page_id) ;
-			
+		try{  
+			$fan_page = $this->facebook->api('/' . $this->page_id) ;  
 		} catch(Exception $e) {
-			throw new Exception(__('Error while getting this fan page : ') . $e->getMessage()); 
+			throw new Exception(__('Error while getting this fan page : ', 'facebook-comments-importer') . $e->getMessage()); 
 		}
 		
 		return $fan_page ;
@@ -86,7 +106,7 @@ class FacebookCommentImporter {
 				}
 			}
 		} catch(Exception $e) {
-			throw new Exception(__('Error while getting this wall : ') . $e->getMessage()); 
+			throw new Exception(__('Error while getting this wall : ', 'facebook-comments-importer') . $e->getMessage()); 
 		}
 		return $fan_wall ;
 	}
@@ -104,9 +124,9 @@ class FacebookCommentImporter {
 	 */
 	public function get_user($user_id){	
 		try{
-			$user = $this->facebook->api('/' . $user_id) ;
-		} catch(Exception $e) {
-			throw new Exception(__('Error while getting this user : ') . $e->getMessage()); 
+			$user = $this->facebook->api('/' . $user_id) ;  
+		} catch(Exception $e) { 
+			throw new Exception(__('Error while getting this user : ', 'facebook-comments-importer') . $e->getMessage()); 
 		}
 		return $user ;
 	}
@@ -133,15 +153,24 @@ class FacebookCommentImporter {
 	 */
 	public function get_comments($wall){
 		$comments = array() ;
-		$i = 0 ;
 		try{
-			foreach($wall as $feed) {
+			foreach($wall as $feed) {  
 				$comments_stream = $this->facebook->api('/' . $feed["id"] . '/comments') ;
+				
 				if(isset($comments_stream[data])){
 					foreach($comments_stream[data] as $comment){
 						$user = $this->get_user($comment["from"]["id"]) ;
+						
+						// Generate the author string
+						$author_str  = get_option('fbci_author_str', '%name% via Facebook') ;
+						$tags = array('%name%', '%first_name%', '%last_name%');
+						$replacements = array($user["name"], $user["first_name"], $user["last_name"]);
+
+						$author_str = str_replace($tags, $replacements, $author_str);
+						
 						$comments[] = array(
 							"author_name" => $user["name"],
+							"author_str" => $author_str,
 							"author_link" => $user["link"],
 							"author_picture" => "http://graph.facebook.com/". $user[id] ."/picture",
 							"message" => $comment["message"],
@@ -155,7 +184,7 @@ class FacebookCommentImporter {
 			}		
 			return $comments ;
 		} catch(Exception $e) {
-			throw new Exception(__('Error while getting the comments : ') . $e->getMessage()); 
+			throw new Exception(__('Error while getting the comments : ', 'facebook-comments-importer') . $e->getMessage()); 
 		}
 	}
 	
@@ -186,8 +215,8 @@ class FacebookCommentImporter {
 			if($post_id > 0) {
 				$commentdata = array(
 					'comment_post_ID' => $post_id,
-					'comment_author' => $comment["author_name"] . ' via Facebook',
-					'comment_author_email' => 'facebook-comments-importer@chefnini.com',
+					'comment_author' => $comment["author_str"],
+					'comment_author_email' => get_bloginfo('admin_email'),
 					'comment_author_url' => $comment["author_link"],
 					'comment_content' => $comment["message"],
 					'comment_agent' => 'facebook-comment-importer plugin',

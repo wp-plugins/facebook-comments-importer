@@ -3,7 +3,7 @@
 Plugin Name: Facebook Comments Importer
 Plugin URI: 
 Description: This plugin imports the comments posted on your Facebook fan page to your blog.
-Version: 1.0.1
+Version: 1.1
 Author: Neoseifer22
 Author URI: 
 License: GPL2
@@ -24,10 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
+load_plugin_textdomain('facebook-comments-importer');
 
 require_once('fbci.class.php');
 $facebook = null ;
-//load_plugin_textdomain('facebook-comments-importer','WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)) ;');
 
 /**
 * Scheduling block
@@ -37,6 +37,7 @@ register_activation_hook(__FILE__, 'fbci_activation');
 register_deactivation_hook(__FILE__, 'fbci_deactivation');
 
 add_action('fbci_cron_import', 'fbci_import_all_comments');
+add_filter('get_avatar', 'fbci_get_avatar', 10, 5);
 
 function fbci_activation() {
 	wp_schedule_event(time()+600, 'hourly', 'fbci_cron_import');
@@ -96,6 +97,41 @@ function fbci_log($text){
 }
 
 /**
+ * Returns the Facebook avatar. Used by the get_avatar filter.
+ * @author : Justin Silver
+ * 
+ * @package WordPress
+ * @since 2.5
+ *
+ * @param	 object	   $avatar			The default avatar.
+ * @param    string    $id_or_email     Author’s User ID (an integer or string), 
+ *										an E-mail Address (a string) or the 
+ *										comment object from the comment loop
+ *										provided by get_avatar.
+ * @param	 string 	$size			Size of avatar to return. provided by get_avatar.
+ * @return   string             		The avatar img tag if possible
+ */
+function fbci_get_avatar($avatar, $id_or_email, $size='50') {
+    if (!is_object($id_or_email)) { 
+		$id_or_email = get_comment($id_or_email);
+    }
+
+    if (is_object($id_or_email)) {
+        $alt = '';
+        if ($id_or_email->comment_agent=='facebook-comment-importer plugin'){
+            $fb_url = $id_or_email->comment_author_url;
+            $fb_array = split("/", $fb_url);
+            $fb_id = $fb_array[count($fb_array)-1];
+            if (strlen($fb_id)>1) {
+                $img = "http://graph.facebook.com/".$fb_id."/picture";
+                return "<img alt='{$alt}' src='{$img}' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
+            }
+        }
+    }
+    return $avatar;
+}
+
+/**
 * Administration Menu block
 */
 add_action('admin_menu', 'fbci_create_menu');
@@ -111,6 +147,7 @@ function fbci_create_menu() {
 
 function fbci_register_mysettings() {
 	register_setting( 'fbci-settings-group', 'fbci_page_id' );
+	register_setting( 'fbci-settings-group', 'fbci_author_str' );
 }
 
 function fbci_settings_page() {
@@ -122,117 +159,54 @@ function fbci_settings_page() {
     <?php settings_fields( 'fbci-settings-group' ); ?>
     <table class="form-table">
         <tr valign="top">
-        <th scope="row"><?php _e('Facebook Fan Page ID :') ; ?></th>
+        <th scope="row"><?php _e('Facebook Fan Page ID :', 'facebook-comments-importer') ; ?></th>
         <td>
-			<input type="text" name="fbci_page_id" value="<?php echo get_option('fbci_page_id'); ?>" />
+			<input type="text" name="fbci_page_id" value="<?php echo get_option('fbci_page_id'); ?>" size="50" />
 			<br/>
-			<?php _e('For exemple, if your page url is <i>www.facebook.com/pages/BlogName/<b>123456</b></i>, your Fan Page ID is <b>123456</b>') ; ?>
+			<?php _e('For exemple, if your page url is <i>www.facebook.com/pages/BlogName/<b>123456</b></i>, your Fan Page ID is <b>123456</b>', 'facebook-comments-importer') ; ?>
+		</td>
+        </tr>
+		<tr valign="top">
+        <th scope="row"><?php _e('Comment author text :', 'facebook-comments-importer') ; ?></th>
+        <td>
+			<input type="text" name="fbci_author_str" value="<?php echo get_option('fbci_author_str', '%name% via Facebook'); ?>" size="50" />
+			<br/>
+			<?php _e('You can use the following tags : %name%, %first_name%, %last_name%', 'facebook-comments-importer') ; ?>
 		</td>
         </tr>
     </table>
 	
 	<?php
+	
 	if(get_option('fbci_page_id') != '') {
 		try {
 			$fbci = new FacebookCommentImporter(get_option('fbci_page_id')) ;
-			$test1['type'] = 'OK' ;
-			$fan_page = $fbci->get_fan_page() ;
-			if(isset($fan_page['fan_count'])){
-				$test1['message'] = sprintf(__('"%1$s" is a fan page, with %2$d fans.'), $fan_page['name'], $fan_page['fan_count']);
-			} else {
-				$test1['message'] = sprintf(__('"%1$s" is a personal profile.'), $fan_page['name']);
-			}
+			$test = $fbci->fan_page_test() ;
 		} catch (Exception $e) {
-			$test1['message'] = __('Error : ') . $e->getMessage() ;
-			$test1['type'] = 'Error' ;
-		}
-		
-		try {
-			$test2['type'] = 'OK' ;
-			$wall = $fbci->get_wall(30) ;
-			$test2['message'] = __('At least one item of your wall is linked to a post of your blog.');
-			if(count($wall) == 0) {
-				$test2['message'] = __('Warning : Cannot find an item on your wall that is linked to one of your blog\'s post.') ;
-				$test2['type'] = 'Warning' ;
-			}
-		} catch (Exception $e) {
-			$test2['message'] = __('Error : ') . $e->getMessage() . '<br>' . __('Check if your fan page / profile is public.')  ;
-			$test2['type'] = 'Error' ;
-		}
-		
-		try {
-			$test3['type'] = 'OK' ;
-			$comments = $fbci->get_comments($fbci->get_wall(30, true)) ;
-			if(count($comments) == 0) {
-				$test3['message'] = __('Warning : ');
-				$test3['type'] = 'Warning' ;
-			}
-			$test3['message'] .= sprintf(__('%1$d comments found.'), count($comments));
-			if(count($comments) == 0) {
-				$test3['message'] .= __('But access seems to be ok.') ;
-			}
-		} catch (Exception $e) {
-			$test3['message'] =  __('Error : ') . $e->getMessage() ;
-			$test3['type'] = 'Error' ;
+			$test = __('Error: Cannot make the test. ', 'facebook-comments-importer') . $e->getMessage() ;
 		}
 	?>
 	
 		<h3>Test result for this ID :</h3>
-		<ol>
-			<li>
+		<div>
 			<?php 
 				$dir = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)) ;
 				echo '<img src="' . $dir . 'images/' ;
-				if($test1['type'] == 'Error') {
+				if(substr ($test, 0, 2) == 'OK') {
+					echo 'accept.png' ;
+				} else {
 					echo 'exclamation.png' ;
 				}
-				else if($test1['type'] == 'Warning') {
-					echo 'error.png' ;
-				} 
-				else {
-					echo 'accept.png' ;
-				}
-				echo '" style="vertical-align:middle; margin-right:5px;" />' . $test1['message']; 
+				echo '" style="vertical-align:middle; margin-right:5px;" />' . $test; 
 			?>
-			</li>
-			<li>
-			<?php 
-				echo '<img src="' . $dir . 'images/' ;
-				if($test2['type'] == 'Error') {
-					echo 'exclamation.png' ;
-				}
-				else if($test2['type'] == 'Warning') {
-					echo 'error.png' ;
-				} 
-				else {
-					echo 'accept.png' ;
-				}
-				echo '" style="vertical-align:middle; margin-right:5px;" />' . $test2['message']; 
-			?>
-			</li>
-			<li>
-			<?php 
-				echo '<img src="' . $dir . 'images/' ;
-				if($test3['type'] == 'Error') {
-					echo 'exclamation.png' ;
-				}
-				else if($test3['type'] == 'Warning') {
-					echo 'error.png' ;
-				} 
-				else {
-					echo 'accept.png' ;
-				}
-				echo '" style="vertical-align:middle; margin-right:5px;" />' . $test3['message']; 
-			?>
-			</li>
-		</ol>
+		</div>
 	
 	<?php
 	}
 	?>
     
 	<p class="submit">
-    <input type="submit" class="button-primary" value="<?php _e('Test & Save Changes'); ?>" />
+    <input type="submit" class="button-primary" value="<?php _e('Test & Save Changes', 'facebook-comments-importer'); ?>" />
     </p>
 
 </form>
