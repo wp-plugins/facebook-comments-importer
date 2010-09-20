@@ -1,0 +1,103 @@
+# Translation of the WordPress plugin Facebook Comments Importer 1.0.1 by Neoseifer22.
+# Copyright (C) 2010 Neoseifer22
+# This file is distributed under the same license as the Facebook Comments Importer package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Facebook Comments Importer 1.0.1\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/facebook-comments-importer\n"
+"POT-Creation-Date: 2010-08-13 12:36+0000\n"
+"PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: facebook-comments-importer.php:125
+msgid "Facebook Fan Page ID :"
+msgstr ""
+
+#: facebook-comments-importer.php:129
+msgid ""
+"For exemple, if your page url is <i>www.facebook.com/pages/BlogName/"
+"<b>123456</b></i>, your Fan Page ID is <b>123456</b>"
+msgstr ""
+
+#: facebook-comments-importer.php:141
+#, php-format
+msgid "\"%1$s\" is a fan page, with %2$d fans."
+msgstr ""
+
+#: facebook-comments-importer.php:143
+#, php-format
+msgid "\"%1$s\" is a personal profile."
+msgstr ""
+
+#: facebook-comments-importer.php:146 facebook-comments-importer.php:159
+#: facebook-comments-importer.php:175
+msgid "Error : "
+msgstr ""
+
+#: facebook-comments-importer.php:153
+msgid "At least one item of your wall is linked to a post of your blog."
+msgstr ""
+
+#: facebook-comments-importer.php:155
+msgid ""
+"Warning : Cannot find an item on your wall that is linked to one of your "
+"blog's post."
+msgstr ""
+
+#: facebook-comments-importer.php:159
+msgid "Check if your fan page / profile is public."
+msgstr ""
+
+#: facebook-comments-importer.php:167
+msgid "Warning : "
+msgstr ""
+
+#: facebook-comments-importer.php:170
+#, php-format
+msgid "%1$d comments found."
+msgstr ""
+
+#: facebook-comments-importer.php:172
+msgid "But access seems to be ok."
+msgstr ""
+
+#: facebook-comments-importer.php:235
+msgid "Test & Save Changes"
+msgstr ""
+
+#: fbci.class.php:51
+msgid "Error while getting this fan page : "
+msgstr ""
+
+#: fbci.class.php:89
+msgid "Error while getting this wall : "
+msgstr ""
+
+#: fbci.class.php:109
+msgid "Error while getting this user : "
+msgstr ""
+
+#: fbci.class.php:158
+msgid "Error while getting the comments : "
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Facebook Comments Importer"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"This plugin imports the comments posted on your Facebook fan page to your "
+"blog."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Neoseifer22"
+msgstr ""
