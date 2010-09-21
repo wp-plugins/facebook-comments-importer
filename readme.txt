@@ -3,7 +3,7 @@ Contributors: Neoseifer22
 Tags: comments, facebook
 Requires at least: 2.9
 Tested up to: 3.0.1
-Stable tag: 1.1
+Stable tag: 1.1
 
 Imports the comments posted on your facebook fan page (or public profile) to your blog.
 
