@@ -1,1 +1,0 @@
-=== Facebook Comments Importer ===Stable tag: 1.1
