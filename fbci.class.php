@@ -200,7 +200,7 @@ class FacebookCommentImporter {
 	 * Each item of the array have the following fields :
 	 * - author_name : 		the username of the commenter
 	 * - author_link : 		the link to the commenter FB profile 
-	 * - author_picture : 	the FB profile picture of the commenter (not used for the moment)
+	 * - author_picture : 	the FB profile picture of the commenter
 	 * - message : 			the comment's message
 	 * - created_time : 	the comment's date. The format is as '2010-08-02T12:23:29+0000'
 	 *                  	You can convert it with date_create($comment["created_time"])
