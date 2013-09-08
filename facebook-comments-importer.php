@@ -3,7 +3,7 @@
 Plugin Name: Facebook Comments Importer
 Plugin URI: 
 Description: This plugin imports the comments posted on your Facebook fan page to your blog.
-Version: 1.2
+Version: 1.2.1
 Author: Neoseifer22
 Author URI: 
 License: GPL2
