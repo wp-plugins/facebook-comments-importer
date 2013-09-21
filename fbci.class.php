@@ -133,15 +133,15 @@ class FacebookCommentImporter {
 					} else {
 						$this->test_result .= "<td style=\"color:green\">" . __('Yes', 'facebook-comments-importer') . "</td>" ;
 					}
-					if(!isset($item["comments"]) || count($item["comments"]) == 0) {
+					if(!isset($item["comments"]) || sizeof($item["comments"]["data"]) == 0) {
 						$this->test_result .= "<td>" . __('No comment', 'facebook-comments-importer') . "</td>" ;
 					} else {
-						$this->test_result .= "<td>" . __('At least ', 'facebook-comments-importer') . count($item["comments"]) . " " . __('comments', 'facebook-comments-importer') . "</td>" ;
+						$this->test_result .= "<td>" . sizeof($item["comments"]["data"]) . " " . __('comments', 'facebook-comments-importer') . "</td>" ;
 					}
 					$nb_imported_comments = $this->get_imported_comment_number($post_id);
 					if(!isset($item['link']) || ($post_id == 0)){
 						$this->test_result .= "<td style=\"color:red\">" . __('Impossible', 'facebook-comments-importer') . "</td>" ;
-					} elseif($nb_imported_comments == 0 && (!isset($item["comments"]) || count($item["comments"]) == 0)){
+					} elseif($nb_imported_comments == 0 && (!isset($item["comments"]) || !isset($item["comments"]["data"]))){
 						$this->test_result .= "<td>-</td>" ;
 					} elseif($nb_imported_comments == 0){
 						$this->test_result .= "<td>" . __('Not yet', 'facebook-comments-importer') . "</td>" ;
@@ -152,7 +152,7 @@ class FacebookCommentImporter {
 					$this->test_result .= "</tr>" ;
 				}
 				// remove the no-commented posts
-				if($only_commented && (!isset($item["comments"]) || count($item["comments"]) == 0)){
+				if($only_commented && (!isset($item["comments"]) || sizeof($item["comments"]["data"]) == 0)){
 					unset($fan_wall[$key]);
 					continue ;
 				}
@@ -341,7 +341,7 @@ class FacebookCommentImporter {
 	 */
 	public function is_comment_imported($comment_id) {
 		global $wpdb ;
-		$nb_comments = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->commentmeta WHERE meta_key = 'fbci_comment_id' and meta_value = '".$comment_id."';"));
+		$nb_comments = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->commentmeta WHERE meta_key = 'fbci_comment_id' and meta_value = %s", $comment_id));
 		return ($nb_comments > 0) ;
 	}
 	
@@ -362,7 +362,7 @@ class FacebookCommentImporter {
 		$nb_comments = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->commentmeta cm
 													  JOIN $wpdb->comments c ON cm.comment_id = c.comment_ID 
 													  WHERE cm.meta_key = 'fbci_comment_id' 
-													  AND c.comment_post_ID = '".$post_id."';"));
+													  AND c.comment_post_ID = %d", $post_id));
 		return $nb_comments ;
 	}
 }
